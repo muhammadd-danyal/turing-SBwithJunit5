@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class EmployeeDaoImpl implements EmployeeDao {
@@ -37,7 +38,7 @@ public class EmployeeDaoImpl implements EmployeeDao {
 
     @Override
     public List<Employee> getAllData() {
-        return employeeRepository.findAll().stream().toList();
+        return employeeRepository.streamAllBy().collect(Collectors.toList());
     }
 
     @Override
