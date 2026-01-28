@@ -38,6 +38,8 @@ public class GlobalExceptionalHandler {
         map.put("Message :- ", runtimeException.getMessage());
         map.put("Status :- ", HttpStatus.INTERNAL_SERVER_ERROR);
         map.put("Code :- ", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        map.put("StackTrace :- ", runtimeException.getStackTrace());
+        map.put("Exception :- ", runtimeException.getClass().getName());
         log.info("Stack Trace", (Object[]) runtimeException.getStackTrace());
         return new ResponseEntity<>(map, HttpStatus.INTERNAL_SERVER_ERROR);
     }

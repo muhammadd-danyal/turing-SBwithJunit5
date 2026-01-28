@@ -17,10 +17,8 @@ import java.util.stream.Collectors;
 public class SbJunit5Application {
 
     public static void main(String[] args) {
-        Map<String, Object> env = Dotenv.configure()
-                .directory(".")
-                .ignoreIfMissing()
-                .load()
+        
+        Map<String, Object> env = Dotenv.load()
                 .entries()
                 .stream()
                 .collect(
