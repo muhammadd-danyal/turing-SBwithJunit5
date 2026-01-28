@@ -29,7 +29,7 @@ public class Employee {
 
     private double empSalary;
 
-    @JsonFormat(pattern = "dd-MM-yyyy")
+    @JsonFormat(pattern = "MM-dd-yyyy")
     private Date empDOB;
 
     private String empEmail;

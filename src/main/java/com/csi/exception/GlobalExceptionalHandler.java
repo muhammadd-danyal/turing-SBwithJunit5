@@ -18,7 +18,7 @@ public class GlobalExceptionalHandler {
     @ExceptionHandler(EmployeeNotFound.class)
     public ResponseEntity<?> handleNotFound(EmployeeNotFound employeeNotFound) {
         Map<String, Object> map = new HashMap<>();
-        map.put("Message :- ", employeeNotFound.getMessage());
+        map.put("Message :- ", "Employee Not Found");
         map.put("Status :- ", HttpStatus.NOT_FOUND);
         map.put("Code :-", HttpStatus.NOT_FOUND.value());
         return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
@@ -28,7 +28,7 @@ public class GlobalExceptionalHandler {
     public ResponseEntity<?> handleBeanValidation(MethodArgumentNotValidException exception) {
         Map<String, String> map = new HashMap<>();
         exception.getBindingResult().getAllErrors().forEach(error ->
-                map.put(((FieldError) error).getField(), error.getDefaultMessage()));
+                map.put(((FieldError) error).getField(), "Validation failed: " + error.getDefaultMessage()));
         return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
     }
 
