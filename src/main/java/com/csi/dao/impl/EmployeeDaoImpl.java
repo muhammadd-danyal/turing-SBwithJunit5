@@ -19,7 +19,15 @@ public class EmployeeDaoImpl implements EmployeeDao {
 
     @Override
     public Employee saveData(Employee employee) {
-        return employeeRepository.save(employee);
+        if (employee.getEmpId() != 0) {
+            Employee existing = employeeRepository.findById(employee.getEmpId()).orElse(null);
+            if (existing != null) {
+                employeeRepository.save(employee);
+                return employee;
+            }
+        }
+        employeeRepository.save(employee);
+        return employee;
     }
 
     @Override
@@ -29,7 +37,7 @@ public class EmployeeDaoImpl implements EmployeeDao {
 
     @Override
     public List<Employee> getAllData() {
-        return employeeRepository.findAll();
+        return employeeRepository.findAll().stream().toList();
     }
 
     @Override

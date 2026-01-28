@@ -1,15 +1,14 @@
 package com.csi.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -33,4 +32,26 @@ public class Employee {
     private Date empDOB;
 
     private String empEmail;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "employee", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<EmployeeAudit> auditHistory;
+}
+
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+class EmployeeAudit {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int auditId;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "emp_id")
+    @JsonIgnore
+    private Employee employee;
+    
+    private String action;
+    private Date timestamp;
 }

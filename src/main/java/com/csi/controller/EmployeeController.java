@@ -58,8 +58,15 @@ public class EmployeeController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<Employee> saveData(@Valid @RequestBody EmployeeDTO employeeDTO) {
-        return new ResponseEntity<>(employeeService.saveData(employeeDTO), HttpStatus.CREATED);
+    public ResponseEntity<Employee> saveData(@RequestBody Employee employee) {
+        EmployeeDTO dto = new EmployeeDTO();
+        dto.setEmpName(employee.getEmpName());
+        dto.setEmpAddress(employee.getEmpAddress());
+        dto.setEmpContactNumber(String.valueOf(employee.getEmpContactNumber()));
+        dto.setEmpSalary(String.valueOf(employee.getEmpSalary()));
+        dto.setEmpDOB(employee.getEmpDOB());
+        dto.setEmpEmail(employee.getEmpEmail());
+        return new ResponseEntity<>(employeeService.saveData(dto), HttpStatus.CREATED);
     }
 
     @PutMapping("/update/{empId}")
