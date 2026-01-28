@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.List;
 
 @Service
@@ -27,7 +29,13 @@ public class EmployeeServiceImpl implements EmployeeService {
         } catch (NumberFormatException e) {
             employee.setEmpContactNumber(0L);
         }
-        employee.setEmpSalary(Double.valueOf(employeeDTO.getEmpSalary()));
+        try {
+            NumberFormat format = NumberFormat.getInstance();
+            Number number = format.parse(employeeDTO.getEmpSalary());
+            employee.setEmpSalary(number.doubleValue());
+        } catch (ParseException e) {
+            throw new RuntimeException("Invalid salary format", e);
+        }
         employee.setEmpDOB(employeeDTO.getEmpDOB());
         employee.setEmpEmail(employeeDTO.getEmpEmail());
         return employeeDao.saveData(employee);
