@@ -11,6 +11,6 @@ import java.util.List;
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
-    List<Employee> findByEmpNameContainingIgnoreCase(String empName);
-    Page<Employee> findByEmpNameContainingIgnoreCase(String empName, Pageable pageable);
+    List<Employee> findByEmpName(String empName);
+    Page<Employee> findByEmpName(String empName, Pageable pageable);
 }

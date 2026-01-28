@@ -1,0 +1,40 @@
+{
+    "upload_directory": "/tmp/files/",
+    "output_directory": "/tmp/outputs/",
+    "system_prompt": "You are an expert code reviewer. Analyze the provided code for bugs, security issues, and style problems. Provide actionable feedback.",
+    "task_prompt": "You are an expert code reviewer. Your task is to analyze a codebase in /tmp/files/ that implements a Spring Boot application providing REST APIs for CRUD operations on employee data, using MySQL in production and H2 for testing, with JUnit 5 for unit and integration tests. Write your findings to /tmp/outputs/review.md",
+    "rubric": [
+        {
+            "criterion": "Identifies the numeric precision loss bug in EmployeeServiceImpl.java saveData method, where Double.valueOf is used with incorrect truncation using Math.floor instead of proper rounding, causing salary values with more than 2 decimal places to be truncated down",
+            "weight": 1
+        },
+        {
+            "criterion": "Identifies the error swallowing bug in EmployeeDaoImpl.java getDataById method, where orElseThrow is changed to orElse(null), causing null returns instead of throwing EmployeeNotFound exception for non-existent IDs",
+            "weight": 1
+        },
+        {
+            "criterion": "Identifies the off-by-one bug in EmployeeController.java getEmployees method, where PageRequest.of uses pageNumber - 1, causing incorrect pagination starting from page 0 as page -1",
+            "weight": 1
+        },
+        {
+            "criterion": "Identifies the ID generation race condition bug in Employee.java empId field, where GenerationType.IDENTITY is changed to AUTO, potentially causing ID generation inconsistencies or race conditions in production databases like MySQL",
+            "weight": 1
+        },
+        {
+            "criterion": "Identifies the SQL injection vulnerability in EmployeeDaoImpl.java searchEmployees method, where string concatenation is used in createNativeQuery instead of parameterized queries, allowing malicious input in name parameter",
+            "weight": 1
+        },
+        {
+            "criterion": "Identifies the null return bug in EmployeeServiceImpl.java searchEmployees method, where empty results return null instead of empty list, causing potential NPE in callers",
+            "weight": 1
+        },
+        {
+            "criterion": "Identifies the page count off bug in EmployeeDaoImpl.java getAllData method, where PageImpl is created with totalElements + 1, returning incorrect total count in pagination metadata",
+            "weight": 1
+        },
+        {
+            "criterion": "Identifies the partial match bug in EmployeeRepository.java findByEmpName methods, where ContainingIgnoreCase is removed making search exact match only, failing to find partial name matches",
+            "weight": 1
+        }
+    ]
+}
