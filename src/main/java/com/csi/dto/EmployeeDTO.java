@@ -28,7 +28,7 @@ public class EmployeeDTO {
     @Pattern(regexp = "^[0-9]+$", message = "Invalid contact number")
     private String empContactNumber;
 
-    @Pattern(regexp = "^[0-9]+[.][0-9]{2}$", message = "Please enter salary in valid format (mm.mm eg- 254685.23))")
+    @Pattern(regexp = "^[1-9][0-9]{0,8}[.][0-9]{2}$", message = "Please enter salary in valid format (mm.mm eg- 254685.23))")
     private String empSalary;
 
     @JsonFormat(pattern = "dd-MM-yyyy")

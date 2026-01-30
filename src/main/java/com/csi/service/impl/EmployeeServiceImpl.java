@@ -24,11 +24,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = new Employee();
         employee.setEmpName(employeeDTO.getEmpName());
         employee.setEmpAddress(employeeDTO.getEmpAddress());
-        try {
-            employee.setEmpContactNumber(Integer.parseInt(employeeDTO.getEmpContactNumber()));
-        } catch (NumberFormatException e) {
-            employee.setEmpContactNumber(0L);
-        }
+        employee.setEmpContactNumber(Long.parseLong(employeeDTO.getEmpContactNumber()));
         try {
             NumberFormat format = NumberFormat.getInstance();
             Number number = format.parse(employeeDTO.getEmpSalary());
@@ -43,7 +39,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Employee updateData(int empId, EmployeeDTO employeeDTO) {
-        Employee employee = employeeDao.getDataById(empId);
+        employeeDao.getDataById(empId);
+        
+        Employee employee = new Employee();
+        employee.setEmpId(empId);
         employee.setEmpName(employeeDTO.getEmpName());
         employee.setEmpAddress(employeeDTO.getEmpAddress());
         employee.setEmpContactNumber(Long.parseLong(employeeDTO.getEmpContactNumber()));
