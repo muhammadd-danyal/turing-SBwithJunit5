@@ -9,7 +9,7 @@
             "weight": 1
         },
         {
-            "criterion": "Identifies the JPA second-level cache stale read bug in src/main/java/com/csi/model/Employee.java where the @Cacheable and @Cache annotations enable Hibernate's second-level cache with READ_WRITE concurrency strategy, causing deleted Employee entities to remain in the cache after deleteEmployeeById() executes, leading to phantom reads where subsequent getDataById() calls in other transactions return cached (deleted) entities instead of throwing EmployeeNotFound exception, resulting in data inconsistency and violation of database state integrity that only manifests in production environments with cache enabled and multiple concurrent transactions",
+            "criterion": "Identifies the unique constraint race condition bug in src/main/java/com/csi/model/Employee.java where a unique index is defined on empEmail column via @Index annotation, but the application layer does not check for email uniqueness before attempting to save, causing race conditions when two concurrent requests try to create employees with the same email address - the first transaction succeeds while the second fails with a ConstraintViolationException at the database level, resulting in poor user experience with cryptic database error messages instead of proper validation errors, and creating a window for duplicate email attempts that bypass application-level validation and only fail at commit time, making error handling inconsistent and exposing internal database constraint names to API consumers",
             "weight": 1
         },
         {

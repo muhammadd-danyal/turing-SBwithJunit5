@@ -6,8 +6,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import java.util.Date;
 import java.util.List;
@@ -16,8 +14,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Cacheable
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Table(name = "employee", indexes = {
+    @Index(name = "idx_emp_email", columnList = "empEmail", unique = true)
+})
 public class Employee {
 
     @Id
