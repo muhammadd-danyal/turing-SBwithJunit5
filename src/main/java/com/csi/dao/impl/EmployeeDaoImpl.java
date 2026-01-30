@@ -43,7 +43,9 @@ public class EmployeeDaoImpl implements EmployeeDao {
 
     @Override
     public void deleteEmployeeById(int empId) {
-        employeeRepository.deleteById(empId);
+        Employee employee = employeeRepository.findById(empId)
+                .orElseThrow(() -> new EmployeeNotFound("Employee Not Found !!!!"));
+        employeeRepository.delete(employee);
     }
 
     @Override

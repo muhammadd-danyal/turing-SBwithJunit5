@@ -48,6 +48,9 @@ public class EmployeeController {
     ) {
         int pageNumber = (page != null) ? page : 0;
         int pageSize = (size != null) ? size : 10;
+        if (pageSize > 1000) {
+            throw new IllegalArgumentException("Page size must not exceed 1000");
+        }
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         return employeeService.getAllData(pageable);
     }
@@ -58,15 +61,8 @@ public class EmployeeController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<Employee> saveData(@RequestBody Employee employee) {
-        EmployeeDTO dto = new EmployeeDTO();
-        dto.setEmpName(employee.getEmpName());
-        dto.setEmpAddress(employee.getEmpAddress());
-        dto.setEmpContactNumber(String.valueOf(employee.getEmpContactNumber()));
-        dto.setEmpSalary(String.valueOf(employee.getEmpSalary()));
-        dto.setEmpDOB(employee.getEmpDOB());
-        dto.setEmpEmail(employee.getEmpEmail());
-        return new ResponseEntity<>(employeeService.saveData(dto), HttpStatus.CREATED);
+    public ResponseEntity<Employee> saveData(@Valid @RequestBody EmployeeDTO employeeDTO) {
+        return new ResponseEntity<>(employeeService.saveData(employeeDTO), HttpStatus.CREATED);
     }
 
     @PutMapping("/update/{empId}")

@@ -1,0 +1,40 @@
+{
+    "upload_directory": "/tmp/files/",
+    "output_directory": "/tmp/outputs/",
+    "system_prompt": "You are an expert code reviewer. Analyze the provided code for bugs, security issues, and style problems. Provide actionable feedback.",
+    "task_prompt": "You are an expert code reviewer. Your task is to analyze a Spring Boot 3.5.6 REST API codebase in /tmp/files/ that implements an Employee Management System with CRUD operations. The application uses a 4-layer architecture (Controller → Service → DAO → Repository) with MySQL in production and H2 in-memory database for testing. It features Jakarta Bean Validation on DTOs, JPA entities with Lombok annotations, Spring Data JPA repositories, and global exception handling. The codebase includes comprehensive JUnit 5 tests using MockMvc, Mockito, and AssertJ. Analyze the code for concurrency issues, JPA state management problems, validation bypasses, resource leaks, configuration brittleness, and HTTP API contract violations. Write your findings to /tmp/outputs/review.md",
+    "rubric": [
+        {
+            "criterion": "Identifies the race condition bug in src/main/java/com/csi/dao/impl/EmployeeDaoImpl.java in the saveData() method where a check-then-act pattern (checking if employee ID exists, then saving) is implemented without synchronization, creating a Time-Of-Check-Time-Of-Use (TOCTOU) vulnerability that can cause ID collisions or lost updates when two concurrent save requests are processed simultaneously",
+            "weight": 1
+        },
+        {
+            "criterion": "Identifies the JPA second-level cache stale read bug in src/main/java/com/csi/model/Employee.java where the @Cacheable and @Cache annotations enable Hibernate's second-level cache with READ_WRITE concurrency strategy, causing deleted Employee entities to remain in the cache after deleteEmployeeById() executes, leading to phantom reads where subsequent getDataById() calls in other transactions return cached (deleted) entities instead of throwing EmployeeNotFound exception, resulting in data inconsistency and violation of database state integrity that only manifests in production environments with cache enabled and multiple concurrent transactions",
+            "weight": 1
+        },
+        {
+            "criterion": "Identifies the resource leak bug in src/main/java/com/csi/dao/impl/EmployeeDaoImpl.java in the getAllData() method where the result of findAll() is converted to a stream using .stream().toList() without proper resource management (try-with-resources or explicit close), potentially causing connection pool exhaustion and memory leaks under high load as streams may hold database cursors or connections open",
+            "weight": 1
+        },
+        {
+            "criterion": "Identifies the polymorphic deserialization security vulnerability in src/main/java/com/csi/dto/EmployeeDTO.java where @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS) annotation enables Jackson's polymorphic type handling, allowing attackers to specify arbitrary Java classes via the @class property in JSON payloads, bypassing Bean Validation by instantiating different DTO classes or malicious classes, potentially leading to Remote Code Execution (RCE) through gadget chains, denial of service, or data corruption, as the validation constraints are applied to the wrong type instance while the application appears to properly use @Valid annotation on the controller endpoint",
+            "weight": 1
+        },
+        {
+            "criterion": "Identifies the lazy loading exception bug in src/main/java/com/csi/model/Employee.java where a @OneToMany relationship with EmployeeAudit is configured with FetchType.LAZY, which will cause LazyInitializationException when the auditHistory collection is accessed outside of a transaction context (such as in the controller layer after the service method returns), because the Hibernate session is closed and the proxy cannot be initialized",
+            "weight": 1
+        },
+        {
+            "criterion": "Identifies the configuration brittleness bug in src/main/java/com/csi/SbJunit5Application.java in the main() method where the Dotenv file path is hardcoded to current directory (\".\") with ignoreIfMissing() enabled, causing the application to silently fail to load environment variables when running from different working directories (CI/CD pipelines, containers, different IDE configurations), leading to \"Could not resolve placeholder\" errors during Spring context initialization",
+            "weight": 1
+        },
+        {
+            "criterion": "Identifies the integer overflow pagination bug in src/main/java/com/csi/controller/EmployeeController.java in the getEmployees() method where page size is validated (max 1000) but page number is not validated, allowing attackers to supply extremely large page numbers (e.g., Integer.MAX_VALUE) that cause integer overflow when Spring Data JPA calculates the offset (page * size), wrapping to negative values and causing database-specific behavior - in MySQL the negative OFFSET silently returns all rows leading to memory exhaustion and DoS, while in PostgreSQL it throws an error, making this a subtle environment-dependent vulnerability that bypasses the size validation and only manifests in production databases under specific conditions",
+            "weight": 1
+        },
+        {
+            "criterion": "Identifies the JPA entity state management bug in src/main/java/com/csi/dao/impl/EmployeeDaoImpl.java in the saveData() method where the input employee parameter is returned directly instead of returning the result of employeeRepository.save(), causing the returned entity to be in a detached state without the generated ID populated for new entities, breaking the API contract where clients expect to receive the persisted entity with its database-generated primary key",
+            "weight": 1
+        }
+    ]
+}
