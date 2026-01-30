@@ -5,7 +5,7 @@
     "task_prompt": "You are an expert code reviewer. Your task is to analyze a codebase in /tmp/files/ that implements a Spring Boot application providing REST APIs for CRUD operations on employee data, using MySQL in production and H2 for testing, with JUnit 5 for unit and integration tests. Write your findings to /tmp/outputs/review.md",
     "rubric": [
         {
-            "criterion": "Identifies the numeric precision loss bug in EmployeeServiceImpl.java saveData method, where Double.valueOf is used with incorrect truncation using Math.floor instead of proper rounding, causing salary values with more than 2 decimal places to be truncated down",
+            "criterion": "Identifies the floating-point equality comparison bug in EmployeeServiceImpl.java updateData method, where salary comparison uses == operator for double values, causing unreliable equality checks due to floating-point precision issues and potentially skipping legitimate updates when salaries appear equal but have minor precision differences",
             "weight": 1
         },
         {
@@ -21,7 +21,7 @@
             "weight": 1
         },
         {
-            "criterion": "Identifies the SQL injection vulnerability in EmployeeDaoImpl.java searchEmployees method, where string concatenation is used in createNativeQuery instead of parameterized queries, allowing malicious input in name parameter",
+            "criterion": "Identifies the transaction boundary bug in EmployeeDaoImpl.java searchEmployees method, where REQUIRES_NEW propagation forces a new transaction that completes before returning results, causing entities to be detached and potentially leading to LazyInitializationException if lazy-loaded fields are accessed later",
             "weight": 1
         },
         {
@@ -29,11 +29,11 @@
             "weight": 1
         },
         {
-            "criterion": "Identifies the page count off bug in EmployeeDaoImpl.java getAllData method, where PageImpl is created with totalElements + 1, returning incorrect total count in pagination metadata",
+            "criterion": "Identifies the lost sort metadata bug in EmployeeDaoImpl.java getAllData method, where PageImpl is created with a new PageRequest that only copies pageNumber and pageSize but loses the Sort information from the original Pageable, causing sorting to be ignored in pagination responses",
             "weight": 1
         },
         {
-            "criterion": "Identifies the partial match bug in EmployeeRepository.java findByEmpName methods, where ContainingIgnoreCase is removed making search exact match only, failing to find partial name matches",
+            "criterion": "Identifies the database collation case-sensitivity bug in EmployeeRepository.java findByEmpName methods, where native SQL LIKE query is used without explicit case handling, making search behavior dependent on database collation settings (works case-insensitively in H2 but may be case-sensitive in MySQL with utf8_bin collation)",
             "weight": 1
         }
     ]
