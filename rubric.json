@@ -13,7 +13,7 @@
             "weight": 1
         },
         {
-            "criterion": "Identifies the resource leak bug in src/main/java/com/csi/dao/impl/EmployeeDaoImpl.java in the getAllData() method where the result of findAll() is converted to a stream using .stream().toList() without proper resource management (try-with-resources or explicit close), potentially causing connection pool exhaustion and memory leaks under high load as streams may hold database cursors or connections open",
+            "criterion": "Identifies the resource leak bug in src/main/java/com/csi/dao/impl/EmployeeDaoImpl.java in the getAllData() method where the Stream<Employee> returned by employeeRepository.streamAllBy() is consumed with .collect(Collectors.toList()) without proper resource management (try-with-resources or explicit close), causing the underlying database cursor and Hibernate session to remain open, potentially leading to connection pool exhaustion, memory leaks, and database lock issues under high load as the stream holds database resources that are never properly released",
             "weight": 1
         },
         {
@@ -25,7 +25,7 @@
             "weight": 1
         },
         {
-            "criterion": "Identifies the configuration brittleness bug in src/main/java/com/csi/SbJunit5Application.java in the main() method where the Dotenv file path is hardcoded to current directory (\".\") with ignoreIfMissing() enabled, causing the application to silently fail to load environment variables when running from different working directories (CI/CD pipelines, containers, different IDE configurations), leading to \"Could not resolve placeholder\" errors during Spring context initialization",
+            "criterion": "Identifies the property source precedence bug in src/main/java/com/csi/SbJunit5Application.java in the main() method where dotenv properties are added using propertySources.addFirst() instead of addLast(), giving them the highest precedence and causing them to silently override all other property sources including command-line arguments, system properties, and environment variables, violating Spring Boot's standard property precedence contract and creating a security vulnerability where developers cannot override sensitive dotenv values (database credentials, API keys) for different environments through standard mechanisms, potentially exposing production systems to wrong configurations or credential leaks when environment-specific overrides are silently ignored",
             "weight": 1
         },
         {

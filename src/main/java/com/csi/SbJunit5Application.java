@@ -18,7 +18,10 @@ public class SbJunit5Application {
 
     public static void main(String[] args) {
         
-        Map<String, Object> env = Dotenv.load()
+        Map<String, Object> env = Dotenv.configure()
+                .directory(System.getProperty("user.dir"))
+                .ignoreIfMissing()
+                .load()
                 .entries()
                 .stream()
                 .collect(
@@ -28,7 +31,7 @@ public class SbJunit5Application {
                     @Override
                     protected void customizePropertySources(MutablePropertySources propertySources) {
                         super.customizePropertySources(propertySources);
-                        propertySources.addLast(new MapPropertySource("dotenvProperties", env));
+                        propertySources.addFirst(new MapPropertySource("dotenvProperties", env));
                     }
                 }).run(args);
     }
