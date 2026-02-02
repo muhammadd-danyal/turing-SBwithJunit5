@@ -13,11 +13,11 @@ import java.util.List;
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
-    @Query(value = "SELECT * FROM employee WHERE emp_name LIKE CONCAT('%', :name, '%')", nativeQuery = true)
+    @Query(value = "SELECT * FROM employee WHERE TRIM(emp_name) LIKE CONCAT('%', TRIM(:name), '%')", nativeQuery = true)
     List<Employee> findByEmpName(@Param("name") String empName);
     
-    @Query(value = "SELECT * FROM employee WHERE emp_name LIKE CONCAT('%', :name, '%')", 
-           countQuery = "SELECT COUNT(*) FROM employee WHERE emp_name LIKE CONCAT('%', :name, '%')",
+    @Query(value = "SELECT * FROM employee WHERE TRIM(emp_name) LIKE CONCAT('%', TRIM(:name), '%')", 
+           countQuery = "SELECT COUNT(*) FROM employee WHERE TRIM(emp_name) LIKE CONCAT('%', TRIM(:name), '%')",
            nativeQuery = true)
     Page<Employee> findByEmpName(@Param("name") String empName, Pageable pageable);
 }

@@ -5,35 +5,35 @@
     "task_prompt": "You are an expert code reviewer. Your task is to analyze a codebase in /tmp/files/ that implements a Spring Boot application providing REST APIs for CRUD operations on employee data, using MySQL in production and H2 for testing, with JUnit 5 for unit and integration tests. Write your findings to /tmp/outputs/review.md",
     "rubric": [
         {
-            "criterion": "Identifies the floating-point equality comparison bug in EmployeeServiceImpl.java updateData method, where salary comparison uses == operator for double values, causing unreliable equality checks due to floating-point precision issues and potentially skipping legitimate updates when salaries appear equal but have minor precision differences",
+            "criterion": "Identifies the field mapping bug in src/main/java/com/csi/service/impl/EmployeeServiceImpl.java updateData method, where empContactNumber is incorrectly set using employeeDTO.getEmpSalary() instead of employeeDTO.getEmpContactNumber(), causing the salary value to be parsed as a contact number and corrupting employee data on updates",
             "weight": 1
         },
         {
-            "criterion": "Identifies the error swallowing bug in EmployeeDaoImpl.java getDataById method, where orElseThrow is changed to orElse(null), causing null returns instead of throwing EmployeeNotFound exception for non-existent IDs",
+            "criterion": "Identifies the silent ID coercion bug in src/main/java/com/csi/dao/impl/EmployeeDaoImpl.java getDataById method, where Math.abs(empId) is used before the lookup, causing negative IDs like -5 to silently return the employee with ID 5 instead of throwing an error, potentially returning wrong employee data",
             "weight": 1
         },
         {
-            "criterion": "Identifies the off-by-one bug in EmployeeController.java getEmployees method, where PageRequest.of uses pageNumber - 1, causing incorrect pagination starting from page 0 as page -1",
+            "criterion": "Identifies the boxed Integer NPE bug in src/main/java/com/csi/controller/EmployeeController.java getEmployees method, where the primitive int variable pageNumber is defined but the boxed Integer 'page' is used in PageRequest.of(), causing NullPointerException when page parameter is not provided since defaultValue was removed",
             "weight": 1
         },
         {
-            "criterion": "Identifies the ID generation race condition bug in Employee.java empId field, where GenerationType.IDENTITY is changed to AUTO, potentially causing ID generation inconsistencies or race conditions in production databases like MySQL",
+            "criterion": "Identifies the incorrect equals/hashCode implementation bug in src/main/java/com/csi/model/Employee.java, where equals() and hashCode() only compare empName field instead of empId, causing two different employees with the same name to be considered equal and breaking Set/Map operations and JPA entity identity",
             "weight": 1
         },
         {
-            "criterion": "Identifies the transaction boundary bug in EmployeeDaoImpl.java searchEmployees method, where REQUIRES_NEW propagation forces a new transaction that completes before returning results, causing entities to be detached and potentially leading to LazyInitializationException if lazy-loaded fields are accessed later",
+            "criterion": "Identifies the entity detachment bug in src/main/java/com/csi/dao/impl/EmployeeDaoImpl.java searchEmployees method, where entityManager.detach() is called on all results before returning, causing LazyInitializationException if any lazy-loaded fields are accessed later and breaking the persistence context",
             "weight": 1
         },
         {
-            "criterion": "Identifies the null return bug in EmployeeServiceImpl.java searchEmployees method, where empty results return null instead of empty list, causing potential NPE in callers",
+            "criterion": "Identifies the stream short-circuit bug in src/main/java/com/csi/service/impl/EmployeeServiceImpl.java searchEmployees method, where findFirst().map(List::of).orElse(List.of()) is used instead of returning the full results list, causing only the first matching employee to be returned instead of all matches",
             "weight": 1
         },
         {
-            "criterion": "Identifies the lost sort metadata bug in EmployeeDaoImpl.java getAllData method, where PageImpl is created with a new PageRequest that only copies pageNumber and pageSize but loses the Sort information from the original Pageable, causing sorting to be ignored in pagination responses",
+            "criterion": "Identifies the internal list mutation bug in src/main/java/com/csi/dao/impl/EmployeeDaoImpl.java getAllData method, where page.getContent() returns the internal list which is then sorted in-place with reversed order, mutating the Page's internal state and causing inconsistent pagination results and potential issues with caching",
             "weight": 1
         },
         {
-            "criterion": "Identifies the database collation case-sensitivity bug in EmployeeRepository.java findByEmpName methods, where native SQL LIKE query is used without explicit case handling, making search behavior dependent on database collation settings (works case-insensitively in H2 but may be case-sensitive in MySQL with utf8_bin collation)",
+            "criterion": "Identifies the whitespace handling inconsistency bug between src/main/java/com/csi/repository/EmployeeRepository.java and src/main/java/com/csi/dao/impl/EmployeeDaoImpl.java, where the repository uses SQL TRIM() function while the DAO uses Java's strip() method, causing search mismatches for names with Unicode whitespace characters since TRIM() only handles ASCII spaces while strip() handles all Unicode whitespace",
             "weight": 1
         }
     ]
