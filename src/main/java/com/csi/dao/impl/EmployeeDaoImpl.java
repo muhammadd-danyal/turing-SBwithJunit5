@@ -9,8 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-import java.text.Normalizer;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class EmployeeDaoImpl implements EmployeeDao {
@@ -20,10 +20,6 @@ public class EmployeeDaoImpl implements EmployeeDao {
 
     @Override
     public Employee saveData(Employee employee) {
-        String name = employee.getEmpName();
-        if (name != null) {
-            employee.setEmpName(Normalizer.normalize(name, Normalizer.Form.NFC));
-        }
         return employeeRepository.save(employee);
     }
 
@@ -51,13 +47,11 @@ public class EmployeeDaoImpl implements EmployeeDao {
 
     @Override
     public List<Employee> searchEmployees(String name) {
-        String normalizedName = Normalizer.normalize(name, Normalizer.Form.NFD);
-        return employeeRepository.findByEmpNameContainingIgnoreCase(normalizedName);
+        return employeeRepository.findByEmpNameContainingIgnoreCase(name);
     }
 
     @Override
     public Page<Employee> searchEmployees(String name, Pageable pageable) {
-        String normalizedName = Normalizer.normalize(name, Normalizer.Form.NFD);
-        return employeeRepository.findByEmpNameContainingIgnoreCase(normalizedName, pageable);
+        return employeeRepository.findByEmpNameContainingIgnoreCase(name, pageable);
     }
 }

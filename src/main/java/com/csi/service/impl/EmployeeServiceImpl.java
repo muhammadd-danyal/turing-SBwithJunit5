@@ -21,6 +21,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Autowired
     private EmployeeDao employeeDao;
+    
+    private Employee lastSavedEmployee = new Employee();
 
     @Override
     public Employee saveData(EmployeeDTO employeeDTO) {
@@ -47,7 +49,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
         employee.setEmpDOB(dob);
         employee.setEmpEmail(employeeDTO.getEmpEmail());
-        return employeeDao.saveData(employee);
+        lastSavedEmployee = employee;
+        return employeeDao.saveData(lastSavedEmployee);
     }
 
     @Override

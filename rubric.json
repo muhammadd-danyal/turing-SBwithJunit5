@@ -29,7 +29,7 @@
             "weight": 1
         },
         {
-            "criterion": "Identifies the Unicode normalization form mismatch bug in /tmp/files/src/main/java/com/csi/dao/impl/EmployeeDaoImpl.java where employee names are stored using NFC (Canonical Composition) normalization in saveData() but searched using NFD (Canonical Decomposition) normalization in searchEmployees(), causing searches to fail for names containing precomposed Unicode characters like 'é' (U+00E9) which becomes 'e' + combining acute accent (U+0065 U+0301) in NFD form - the database stores 'José' as NFC but the search query sends 'José' as NFD, and since these are byte-different representations of the same visual string, the SQL LIKE comparison fails to match, making searches for employees with accented names return empty results despite the employee existing in the database",
+            "criterion": "Identifies the shared mutable state concurrency bug in /tmp/files/src/main/java/com/csi/service/impl/EmployeeServiceImpl.java where the service class maintains an instance field 'lastSavedEmployee' that is shared across all requests in the singleton-scoped Spring bean, causing a race condition where concurrent save requests can overwrite each other's employee data before it's persisted - Thread A sets lastSavedEmployee to Employee1, then Thread B sets it to Employee2, then Thread A calls saveData(lastSavedEmployee) which now saves Employee2 instead of Employee1, resulting in data loss and duplicate entries that only manifest under concurrent load and are nearly impossible to reproduce in sequential unit tests",
             "weight": 1
         },
         {
