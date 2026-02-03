@@ -13,7 +13,7 @@
             "weight": 1
         },
         {
-            "criterion": "Identifies the ternary fallback NPE bug in src/main/java/com/csi/controller/EmployeeController.java getEmployees method, where the expression pageSize > 0 ? pageSize : size will unbox the nullable Integer 'size' when pageSize is 0 or negative, causing NullPointerException when size parameter was originally null",
+            "criterion": "Identifies the wrong variable in ternary bug in src/main/java/com/csi/controller/EmployeeController.java getEmployees method, where the expression pageNumber != 0 ? pageSize : pageNumber uses pageNumber instead of pageSize in the else branch, causing page size to be set to 0 when requesting the first page (page=0), which triggers an IllegalArgumentException in PageRequest.of() since page size must be at least 1",
             "weight": 1
         },
         {
