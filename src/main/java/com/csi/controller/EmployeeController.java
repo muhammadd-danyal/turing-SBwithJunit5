@@ -48,7 +48,7 @@ public class EmployeeController {
     ) {
         int pageNumber = page != null ? page : 0;
         int pageSize = size != null ? size : 10;
-        Pageable pageable = PageRequest.of(page, pageSize);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize > 0 ? pageSize : size);
         return employeeService.getAllData(pageable);
     }
 

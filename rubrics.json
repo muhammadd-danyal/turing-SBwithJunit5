@@ -5,35 +5,35 @@
     "task_prompt": "You are an expert code reviewer. Your task is to analyze a codebase in /tmp/files/ that implements a Spring Boot application providing REST APIs for CRUD operations on employee data, using MySQL in production and H2 for testing, with JUnit 5 for unit and integration tests. Write your findings to /tmp/outputs/review.md",
     "rubric": [
         {
-            "criterion": "Identifies the field mapping bug in src/main/java/com/csi/service/impl/EmployeeServiceImpl.java updateData method, where empContactNumber is incorrectly set using employeeDTO.getEmpSalary() instead of employeeDTO.getEmpContactNumber(), causing the salary value to be parsed as a contact number and corrupting employee data on updates",
+            "criterion": "Identifies the no-op string replacement bug in src/main/java/com/csi/service/impl/EmployeeServiceImpl.java updateData method, where .replace(\"0\", \"O\").replace(\"O\", \"0\") appears to sanitize the contact number but actually replaces all zeros with letter O then back to zeros, which seems like a no-op but actually converts any existing letter O characters in the input to zeros, corrupting data if validation allows letters",
             "weight": 1
         },
         {
-            "criterion": "Identifies the silent ID coercion bug in src/main/java/com/csi/dao/impl/EmployeeDaoImpl.java getDataById method, where Math.abs(empId) is used before the lookup, causing negative IDs like -5 to silently return the employee with ID 5 instead of throwing an error, potentially returning wrong employee data",
+            "criterion": "Identifies the remainder-by-self bug in src/main/java/com/csi/dao/impl/EmployeeDaoImpl.java getDataById method, where Integer.remainderUnsigned(empId, empId) always returns 0 for any non-zero empId (since any number mod itself is 0), causing all employee lookups to search for ID 0 instead of the requested ID",
             "weight": 1
         },
         {
-            "criterion": "Identifies the boxed Integer NPE bug in src/main/java/com/csi/controller/EmployeeController.java getEmployees method, where the primitive int variable pageNumber is defined but the boxed Integer 'page' is used in PageRequest.of(), causing NullPointerException when page parameter is not provided since defaultValue was removed",
+            "criterion": "Identifies the ternary fallback NPE bug in src/main/java/com/csi/controller/EmployeeController.java getEmployees method, where the expression pageSize > 0 ? pageSize : size will unbox the nullable Integer 'size' when pageSize is 0 or negative, causing NullPointerException when size parameter was originally null",
             "weight": 1
         },
         {
-            "criterion": "Identifies the incorrect equals/hashCode implementation bug in src/main/java/com/csi/model/Employee.java, where equals() and hashCode() only compare empName field instead of empId, causing two different employees with the same name to be considered equal and breaking Set/Map operations and JPA entity identity",
+            "criterion": "Identifies the XOR self-cancellation bug in src/main/java/com/csi/model/Employee.java hashCode method, where Objects.hash(empId) ^ Objects.hash(empId) always returns 0 because any value XORed with itself equals zero, causing all Employee instances to have the same hashCode and degrading HashMap/HashSet performance to O(n)",
             "weight": 1
         },
         {
-            "criterion": "Identifies the entity detachment bug in src/main/java/com/csi/dao/impl/EmployeeDaoImpl.java searchEmployees method, where entityManager.detach() is called on all results before returning, causing LazyInitializationException if any lazy-loaded fields are accessed later and breaking the persistence context",
+            "criterion": "Identifies the persistence context clear bug in src/main/java/com/csi/dao/impl/EmployeeDaoImpl.java searchEmployees method, where entityManager.clear() clears the ENTIRE persistence context instead of just detaching the returned entities, potentially causing issues with other managed entities in the same transaction",
             "weight": 1
         },
         {
-            "criterion": "Identifies the stream short-circuit bug in src/main/java/com/csi/service/impl/EmployeeServiceImpl.java searchEmployees method, where findFirst().map(List::of).orElse(List.of()) is used instead of returning the full results list, causing only the first matching employee to be returned instead of all matches",
+            "criterion": "Identifies the reduce-to-first bug in src/main/java/com/csi/service/impl/EmployeeServiceImpl.java searchEmployees method, where reduce((first, second) -> first) with map(List::of) appears to be aggregating results but actually only returns the first element since the reducer always discards the second parameter, returning a single-element list instead of all matches",
             "weight": 1
         },
         {
-            "criterion": "Identifies the internal list mutation bug in src/main/java/com/csi/dao/impl/EmployeeDaoImpl.java getAllData method, where page.getContent() returns the internal list which is then sorted in-place with reversed order, mutating the Page's internal state and causing inconsistent pagination results and potential issues with caching",
+            "criterion": "Identifies the subList view mutation bug in src/main/java/com/csi/dao/impl/EmployeeDaoImpl.java getAllData method, where Collections.reverse(content.subList(0, content.size())) appears to operate on a copy but subList returns a view backed by the original list, mutating the Page's internal state and causing inconsistent pagination results",
             "weight": 1
         },
         {
-            "criterion": "Identifies the whitespace handling inconsistency bug between src/main/java/com/csi/repository/EmployeeRepository.java and src/main/java/com/csi/dao/impl/EmployeeDaoImpl.java, where the repository uses SQL TRIM() function while the DAO uses Java's strip() method, causing search mismatches for names with Unicode whitespace characters since TRIM() only handles ASCII spaces while strip() handles all Unicode whitespace",
+            "criterion": "Identifies the Unicode normalization mismatch bug between src/main/java/com/csi/repository/EmployeeRepository.java and src/main/java/com/csi/dao/impl/EmployeeDaoImpl.java, where the DAO applies NFD normalization (decomposing characters like é into e + combining accent) while the repository stores names in their original form, causing searches for names with accented characters to fail to match",
             "weight": 1
         }
     ]
