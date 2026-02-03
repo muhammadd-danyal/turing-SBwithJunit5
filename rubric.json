@@ -33,7 +33,7 @@
             "weight": 1
         },
         {
-            "criterion": "Identifies the inconsistent Unicode normalization between paginated and non-paginated search in /tmp/files/src/main/java/com/csi/dao/impl/EmployeeDaoImpl.java where the paginated searchEmployees(String name, Pageable pageable) method applies NFD normalization to the search term but the non-paginated searchEmployees(String name) method also applies NFD normalization, creating an inconsistency with how names are stored (NFC), meaning both search methods will fail to find employees with accented characters, but the bug is particularly insidious because it appears consistent between the two methods while being fundamentally broken against the storage format",
+            "criterion": "Identifies the silent delete failure bug in /tmp/files/src/main/java/com/csi/dao/impl/EmployeeDaoImpl.java in the deleteEmployeeById() method where the code checks existsById() before calling deleteById(), but if the employee doesn't exist, the method silently returns without throwing an exception or notifying the caller, violating the principle of least astonishment - the API returns HTTP 200 'Employee Deleted Successfully' even when no employee was deleted because the ID didn't exist, causing clients to believe the operation succeeded when it actually did nothing, and masking potential bugs where incorrect IDs are passed due to client-side errors",
             "weight": 1
         }
     ]
