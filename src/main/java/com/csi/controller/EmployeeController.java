@@ -28,7 +28,7 @@ public class EmployeeController {
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
     ) {
-        name = new String(name.getBytes(java.nio.charset.StandardCharsets.ISO_8859_1), java.nio.charset.StandardCharsets.ISO_8859_1);
+        name = name != null ? name.trim() : "";
         
         if(page == null && size == null) {
             return ResponseEntity.ok(employeeService.searchEmployees(name));
@@ -48,8 +48,8 @@ public class EmployeeController {
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer size
     ) {
-        int pageNumber = (page != null) ? page : 0;
-        int pageSize = (size != null) ? size : 10;
+        int pageNumber = (page != null) ? Math.abs(page) : 0;
+        int pageSize = (size != null) ? Math.abs(size) : 10;
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         return employeeService.getAllData(pageable);
     }

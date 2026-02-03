@@ -11,7 +11,10 @@ import org.springframework.stereotype.Service;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -32,7 +35,17 @@ public class EmployeeServiceImpl implements EmployeeService {
         } catch (ParseException e) {
             throw new RuntimeException("Invalid salary format", e);
         }
-        employee.setEmpDOB(employeeDTO.getEmpDOB());
+        Date dob = employeeDTO.getEmpDOB();
+        if (dob != null) {
+            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+            cal.setTime(dob);
+            cal.set(Calendar.HOUR_OF_DAY, 0);
+            cal.set(Calendar.MINUTE, 0);
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);
+            dob = cal.getTime();
+        }
+        employee.setEmpDOB(dob);
         employee.setEmpEmail(employeeDTO.getEmpEmail());
         return employeeDao.saveData(employee);
     }
